@@ -11,11 +11,17 @@ app = FastAPI()
 # Add CORS middleware to allow requests from React frontend
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["http://localhost:3000"],  # React app's origin
+    allow_origins=["*"],  # Allow all origins
     allow_credentials=True,
     allow_methods=["*"],  # Allow all HTTP methods (GET, POST, DELETE, etc.)
     allow_headers=["*"],  # Allow all headers
 )
+
+
+@app.get("/")
+def read_root():
+    return {"message": "API is running. Check /movies/ and /actors/ for data."}
+
 
 # Movies Endpoints
 
@@ -59,7 +65,8 @@ def update_movie(movie_id: int, movie: schemas.MovieBase):
     db_movie.actors.clear()  # Удаляем всех текущих актеров
     if movie.actors:  # Добавляем новых актеров
         actors_to_add = models.Actor.select().where(models.Actor.id.in_(movie.actors))
-        db_movie.actors.add(actors_to_add)
+        for actor in actors_to_add:
+            db_movie.actors.add(actor)
 
     return db_movie
 
