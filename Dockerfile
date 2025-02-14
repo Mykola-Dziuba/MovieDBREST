@@ -1,7 +1,6 @@
-FROM python:3.9
-
-COPY requirements.txt /code/requirements.txt
-WORKDIR /code
-RUN pip install --no-cache-dir --upgrade -r /code/requirements.txt
-COPY . /code
-CMD ["fastapi", "run", "main.py", "--port", "80"]
+FROM python:3.10
+WORKDIR /app
+COPY . /app
+RUN pip install --no-cache-dir --upgrade pip && \
+    pip install --no-cache-dir -r requirements.txt
+CMD ["sh", "start.sh"]

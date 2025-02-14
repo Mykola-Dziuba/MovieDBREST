@@ -44,7 +44,7 @@ def get_movie(movie_id: int):
 
 @app.put("/movies/{movie_id}", response_model=schemas.Movie)
 def update_movie(movie_id: int, movie: schemas.MovieBase):
-    """Update an existing movie by ID."""
+    """Update an existing movie by ID, including actors."""
     db_movie = models.Movie.filter(models.Movie.id == movie_id).first()
     if db_movie is None:
         raise HTTPException(status_code=404, detail="Movie not found")
@@ -54,6 +54,12 @@ def update_movie(movie_id: int, movie: schemas.MovieBase):
     db_movie.director = movie.director
     db_movie.description = movie.description
     db_movie.save()
+
+    # ✅ Обновляем связи с актерами
+    db_movie.actors.clear()  # Удаляем всех текущих актеров
+    if movie.actors:  # Добавляем новых актеров
+        actors_to_add = models.Actor.select().where(models.Actor.id.in_(movie.actors))
+        db_movie.actors.add(actors_to_add)
 
     return db_movie
 
